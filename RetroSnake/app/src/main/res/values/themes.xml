@@ -1,0 +1,33 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!--  Base application theme.  -->
+    <style name="Theme.RetroSnake" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+
+        <!-- Primary Color (Main color of the app) -->
+        <item name="colorPrimary">@color/blue_400</item>
+
+        <!-- Primary Variant (A darker shade of primary color) -->
+        <item name="colorPrimaryVariant">@color/blue_700</item>
+
+        <!-- On Primary (Text and icons that appear on primary color) -->
+        <item name="colorOnPrimary">@color/white</item>
+
+        <!-- Secondary Color (For buttons, floating action buttons, etc.) -->
+        <item name="colorSecondary">@color/blue_500</item>
+
+        <!-- Secondary Variant (A darker shade of secondary color) -->
+        <item name="colorSecondaryVariant">@color/blue_800</item>
+
+        <!-- On Secondary (Text and icons that appear on secondary color) -->
+        <item name="colorOnSecondary">@color/white</item>
+
+        <!-- Status Bar Color (on Android Lollipop and above) -->
+        <item name="android:statusBarColor">@color/status_bar_blue</item>
+
+    </style>
+    <style name="Theme.AppCompat.Light.NoActionBar.FullScreen" parent="@style/Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+</resources>
