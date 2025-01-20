@@ -1,0 +1,65 @@
+<!-- res/layout/custom_slot_dialog_layout.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp"
+    android:background="@drawable/convo"
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/dialogMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Choose Save Slot"
+        android:textSize="20sp"
+        android:textColor="#0288D1"
+        android:paddingBottom="16dp"
+        android:gravity="center"/>
+
+    <Button
+        android:id="@+id/slot1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Slot 1"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#0288D1"
+        android:padding="10dp"/>
+
+    <Button
+        android:id="@+id/slot2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Slot 2"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#0288D1"
+        android:padding="10dp"/>
+
+    <Button
+        android:id="@+id/slot3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Slot 3"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#0288D1"
+        android:padding="10dp"/>
+
+    <Button
+        android:id="@+id/slot4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Slot 4"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#0288D1"
+        android:padding="10dp"/>
+
+    <Button
+        android:id="@+id/slot5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Slot 5"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#0288D1"
+        android:padding="10dp"/>
+
+</LinearLayout>

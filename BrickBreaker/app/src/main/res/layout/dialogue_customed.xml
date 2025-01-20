@@ -1,0 +1,46 @@
+<!-- res/layout/custom_dialog_layout.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp"
+    android:background="@drawable/convo"
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/dialogMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="A game is already saved in this slot. Do you want to overwrite it?"
+        android:textSize="18sp"
+        android:textColor="#0288D1"
+        android:paddingBottom="16dp"
+        android:gravity="center" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/btnYes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Yes"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#0288D1"
+            android:padding="10dp"
+            android:layout_marginEnd="8dp"/>
+
+        <Button
+            android:id="@+id/btnNo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#0288D1"
+            android:padding="10dp"
+            android:layout_marginStart="8dp"/>
+    </LinearLayout>
+</LinearLayout>

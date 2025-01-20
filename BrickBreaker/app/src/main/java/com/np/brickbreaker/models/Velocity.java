@@ -1,4 +1,4 @@
-package com.np.brickbreaker;
+package com.np.brickbreaker.models;
 
 public class Velocity {
     private int x,y;

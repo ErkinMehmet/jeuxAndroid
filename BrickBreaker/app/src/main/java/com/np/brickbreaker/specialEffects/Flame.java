@@ -11,9 +11,9 @@ public class Flame {
     private Paint outerFlamePaint;
     private Paint outerFlamePaint2;
     private Random random;
-    float x=500f;
-    float y=700f;
-    public float flameSizeOrig=200.0f;
+    public float x=400f;
+    public float y=550f;
+    public float flameSizeOrig=150.0f;
     public float flameDecay=0.1f;
     public float flameThreshold=100;
     private int[] flameColors = {
@@ -25,6 +25,9 @@ public class Flame {
     };
     public Flame() {
         this.random = new Random();
+        // randomize x and y
+        x+=random.nextFloat()*200;
+        y+=random.nextFloat()*300;
 
         this.path = new Path();
         this.pathOuter=new Path();

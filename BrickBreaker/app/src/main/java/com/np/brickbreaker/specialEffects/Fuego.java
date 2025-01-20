@@ -42,7 +42,7 @@ public class Fuego {
     private void generateFirePath(int width, int height) {
         firePath.reset();
         float centerX = width / 2f;
-        float centerY = height / 2f;
+        float centerY = height /2f;
         float radius = 150f * fireScale;
 
         // Create the path representing the fire's flicker

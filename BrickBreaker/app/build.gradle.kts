@@ -40,6 +40,8 @@ android {
 }
 
 dependencies {
+    implementation(libs.com.google.android.gms.play.services.ads);
+    implementation(libs.com.google.code.gson);
     implementation(libs.com.google.android.material);
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <!--  Gradient Bg for listrow -->
+    <gradient
+        android:startColor="#B3E5FC"
+    android:centerColor="#4FC3F7"
+    android:endColor="#0288D1"
+    android:angle="180" />
+</shape> </item>
+
+
+    <item android:gravity="left|center_vertical">
+        <vector xmlns:android="http://schemas.android.com/apk/res/android"
+            android:width="50dp"
+            android:height="50dp"
+            android:viewportWidth="50"
+            android:viewportHeight="50">
+            <!-- Arrowhead Triangle -->
+            <path
+                android:fillColor="#E1F5FE"
+                android:pathData="M15,0 L0,0 L0,25 Z" />
+        </vector>
+    </item>
+    <item android:gravity="left|center_vertical">
+        <vector xmlns:android="http://schemas.android.com/apk/res/android"
+            android:width="50dp"
+            android:height="50dp"
+            android:viewportWidth="50"
+            android:viewportHeight="50">
+
+            <path
+                android:fillColor="#E1F5FE"
+                android:pathData="M35,50 L0,50 L0,25 Z" />
+        </vector>
+    </item>
+</layer-list>

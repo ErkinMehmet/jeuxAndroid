@@ -1,4 +1,4 @@
-package com.np.brickbreaker;
+package com.np.brickbreaker.models;
 
 
 import android.graphics.LinearGradient;
@@ -8,10 +8,10 @@ public class Brick
 {
     private boolean isVisible;
     public int row,column,width,height;
-    public float left,right,top,bottom;
-    LinearGradient gradient;
+    public int left,right,top,bottom;
+    public LinearGradient gradient;
     public int color;
-    public int hp=5;
+    public int hp=0;
     public BrickType brickType=BrickType.COMMON;
 
     public Brick(int row,int column,int width,int height,int color) {
