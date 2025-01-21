@@ -1,8 +1,10 @@
 package com.np.brickbreaker;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,22 +19,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StoreActivity extends AppCompatActivity {
-
+    private SharedPreferences sharedPreferences;
+    private SharedPreferences.Editor editor;
     private RecyclerView recyclerView;
-    private Button prevButton, nextButton;
+    TextView remainingPointsText;
+    private Button prevButton, nextButton,returnButton;
     private StoreAdapter adapter;
     private List<StoreItem> items = new ArrayList<>();
     private int currentPage = 0;
-    private final int ITEMS_PER_PAGE = 9;
+    private final int ITEMS_PER_PAGE = 6;
+    private int points;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_store);
-
+        remainingPointsText = findViewById(R.id.remainingPointsText);
         recyclerView = findViewById(R.id.recyclerView);
         prevButton = findViewById(R.id.prevButton);
         nextButton = findViewById(R.id.nextButton);
+        returnButton=findViewById(R.id.returnButton);
 
         recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
         loadItemsFromJson();
@@ -51,12 +57,20 @@ public class StoreActivity extends AppCompatActivity {
             }
         });
 
+        returnButton.setOnClickListener(v -> {
+            finish();// since main activity was not closed, we can just finish the store act to go back
+        });
+
         updatePage();
+
+        points = getIntent().getIntExtra("points", 0);
+        remainingPointsText.setText("Remaining Points: " + points);
+
     }
 
     private void loadItemsFromJson() {
         try {
-            InputStream is = getAssets().open("items.json");
+            InputStream is = getAssets().open("shop/bgs.json");
             byte[] buffer = new byte[is.available()];
             is.read(buffer);
             is.close();

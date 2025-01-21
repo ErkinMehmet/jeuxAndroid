@@ -48,14 +48,14 @@ public class MainActivity extends AppCompatActivity {
         gameDataSharedPreferences = getSharedPreferences("GameData", MODE_PRIVATE);
         gameDataeditor = gameDataSharedPreferences.edit();
 
-        btnLoadGame = findViewById(R.id.btnLoadGame);
-        btnLoadGame.setOnClickListener(new View.OnClickListener() {
+        // = findViewById(R.id.btnLoadGame);
+        /*btnLoadGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.e("info","i am clicking the load from main");
                 loadGame(view, 1);
             }
-        });
+        });*/
 
 
 
@@ -67,17 +67,46 @@ public class MainActivity extends AppCompatActivity {
         app.showAppOpenAdIfAvailable();
     }
 
+    public void loadButtonClick(View view){
+        Log.e("info","i am clicking the load from main");
+        if (gameView !=null) {
+            startGame(null);
+            loadGame(view, 2);
+        } else {
+            loadGame(view, 1);
+        }
+
+    }
+
     public void startGame(View view) {
-        if (gameView == null) {
-            Toast.makeText(this, "Starting a New Game!", Toast.LENGTH_SHORT).show();
-            gameView = new GameView(this,this); // create a game view if it does not exist yet
+        initiateGame(1);
+    }
+
+    public void initiateGame(int option){
+        if (option==1) {
+            // start a new game (gameView exists or not)
+            if (gameView != null) {
+                // if the game exists, ask to confirm, then just initialize everything
+                showNewGameConfirmationDialog();
+            } else {
+                Toast.makeText(this, "Starting a New Game!", Toast.LENGTH_SHORT).show();
+                gameView = new GameView(this,this); // create a game view if it does not exist yet
+            }
+        } else if (option==2){
+            // resume (gameView exists)
+
+        } else {
+            // loads a game
+            if (gameView == null) {
+                gameView = new GameView(this,this); // create a game view if it does not exist yet
+            }
+            Toast.makeText(this, "Loading a Game!", Toast.LENGTH_SHORT).show();
         }
 
         // goes back to the same game from game over
         if (gameView.getParent() != null) {
             ((ViewGroup) gameView.getParent()).removeView(gameView);
         }
-        //setContentView(gameView);
         isGameRunning=true;
 
         gameContainer = new FrameLayout(this);
@@ -150,8 +179,8 @@ public class MainActivity extends AppCompatActivity {
         loadButton.setLayoutParams(paramsButton);
 
         restartButton.setOnClickListener(v -> gameView.restartGame());
-        resumeButton.setOnClickListener(v -> gameView.toggleGamePause());
-        pauseButton.setOnClickListener(v -> gameView.toggleGamePause());
+        resumeButton.setOnClickListener(v ->toggleGamePause());
+        pauseButton.setOnClickListener(v -> toggleGamePause());
         quitButton.setOnClickListener(v -> gameView.quitGame());
         menuButton.setOnClickListener(v -> gameView.openMenu());
         saveButton.setOnClickListener(v -> saveGame());
@@ -222,6 +251,33 @@ public class MainActivity extends AppCompatActivity {
         //gameDataSharedPreferences = getSharedPreferences("GameData", MODE_PRIVATE);
         return gameDataSharedPreferences.contains("game_state_slot_" + (slotIndex + 1));
     }
+
+    private void showNewGameConfirmationDialog() {
+        // Inflate the custom dialog layout
+        View dialogView = getLayoutInflater().inflate(R.layout.dialogue_customed, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setView(dialogView) // Set the custom layout
+                .setCancelable(true); // Allow dismissal on touch outside
+        AlertDialog alertDialog = builder.create();
+        TextView dialogText = dialogView.findViewById(R.id.dialogMessage);
+        dialogText.setText("Starting a new game will make you lose your current progress. Do you want to continue?");
+        Button btnYes = dialogView.findViewById(R.id.btnYes);
+        btnYes.setOnClickListener(v -> {
+            gameView.restartGame();
+            gameView.initiateEverything();
+            if (!gameView.gamePaused) {
+                toggleGamePause(); // to pause the game
+            }
+            alertDialog.dismiss(); // Close the dialog
+        });
+
+        Button btnNo = dialogView.findViewById(R.id.btnNo);
+        btnNo.setOnClickListener(v -> {
+            alertDialog.dismiss();
+        });
+        alertDialog.show();
+    }
+
     private void showOverwriteConfirmationDialog(int slotIndex) {
         View dialogView = getLayoutInflater().inflate(R.layout.dialogue_customed, null);
         AlertDialog.Builder builder =new AlertDialog.Builder(this)
@@ -333,6 +389,11 @@ public class MainActivity extends AppCompatActivity {
         alertDialog.show();
     }
 
+    public void toggleGamePause() {
+        gameView.gamePaused=!gameView.gamePaused;
+        gameView.invalidate();
+    }
+
     private void showLosingProgressialog(int slotIndex,int askLosingProgress) {
         View dialogView = getLayoutInflater().inflate(R.layout.dialogue_customed, null);
         String gameStateJson = null;
@@ -378,7 +439,8 @@ public class MainActivity extends AppCompatActivity {
                 Button btnYes = dialogView.findViewById(R.id.btnYes);
                 btnYes.setOnClickListener(v -> {
                     alertDialog.cancel();
-                    gameDataeditor.putString("loaded_game_state", gameStateJson2);  // Set the "is_game_loaded" flag to true
+                    gameDataeditor.putString("loaded_game_state", gameStateJson2);
+                    // Set the "is_game_loaded" flag to true
                     gameDataeditor.apply();
                     gameView.initializeGame();
                     Toast.makeText(this, "Game loaded from Slot " + (slotIndex + 1), Toast.LENGTH_SHORT).show();
@@ -394,7 +456,7 @@ public class MainActivity extends AppCompatActivity {
                 gameDataeditor.putString("loaded_game_state", gameStateJson2);  // Set the "is_game_loaded" flag to true
                 gameDataeditor.apply();
                 Log.e("info","trying to load gaem from main menu");
-                startGame(null);
+                initiateGame(3);
                 Toast.makeText(this, "Game loaded from Slot " + (slotIndex + 1), Toast.LENGTH_SHORT).show();
             }
 
@@ -402,17 +464,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void returnToGame(View view) {
-        if (gameView != null) {
+        /*if (gameView != null) {
             Toast.makeText(this, "Resuming the Game!", Toast.LENGTH_SHORT).show();
+            if (gameView.getParent() != null) {
+                ((ViewGroup) gameView.getParent()).removeView(gameView);
+            }
             setContentView(gameView); // Restore the GameView
             isGameRunning = true; // Mark that the game is running
-        }
+        }*/
+       initiateGame(2);
     }
 
     public void viewRecords(View view) {
-        Intent intent = new Intent(this, StoreActivity.class);
-        startActivity(intent);
-        Toast.makeText(this, "Viewing Records!", Toast.LENGTH_SHORT).show();
+        int points=0;
+        if (gameView != null) {
+            points=gameView.points;
+            Intent intent = new Intent(this, StoreActivity.class);
+            intent.putExtra("points", points);
+            startActivity(intent);
+            Toast.makeText(this, "Viewing Records!", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "You must start or load a game before going to the store", Toast.LENGTH_LONG).show();
+        }
+
     }
 
     public void quitGame(View view) {

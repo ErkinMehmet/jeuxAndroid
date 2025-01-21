@@ -77,7 +77,7 @@ public class GameView extends View {
     private boolean initVelocity=false;
     private Velocity velocity=new Velocity(0,0);//25,32
     Handler handler;
-    final private long UPDATE_MILLIS=30;
+    final private long UPDATE_MILLIS=15;
     private Runnable runnable;
     private Paint textPaint=new Paint();
     private Paint healthPaint=new Paint();
@@ -98,7 +98,7 @@ public class GameView extends View {
     private int magnetFrame=0;
     private int oldX,oldPaddleX; //oldPaddleX for onTouch
     private float velocityPaddle;
-    private int points;
+    public int points;
     final private int maxLife=3;
     private int life;
     private Bitmap ball,paddle, ballBefore;
@@ -242,7 +242,7 @@ public class GameView extends View {
         ballWidth = ball.getWidth();
         ballHeight = ball.getHeight();
         ballAttack=1+levelNum/10;
-        precisionAcceptance=8;
+        precisionAcceptance=1;
         targetArrowX=dWidth/2;
         targetArrowY=550;
         dashedPos=paddleY-50;
@@ -265,6 +265,12 @@ public class GameView extends View {
             editor.remove("loaded_game_state");
             editor.apply();
         }
+    }
+
+    public void initiateEverything(){
+        life=maxLife;
+        levelNum=1;
+        points=0;
     }
     private void initiateBitmaps(){
         random = new Random();
@@ -1087,18 +1093,17 @@ public class GameView extends View {
         return true;
     }
 
-    public void toggleGamePause() {
-        gamePaused=!gamePaused;
-        invalidate();
-    }
+
 
     public void quitGame() {
         ((Activity) getContext()).finish();
     }
 
     public void openMenu() {
-        Intent intent = new Intent(getContext(), MainActivity.class);
-        getContext().startActivity(intent);
+        // Intent intent = new Intent(getContext(), MainActivity.class);
+        // getContext().startActivity(intent);
+        // since the main activity was not terminated maybe it is better to do it like this
+        ((Activity) getContext()).setContentView(R.layout.activity_main);
     }
 
     public void restartGame() {

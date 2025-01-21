@@ -49,6 +49,7 @@
         android:elevation="0dp"
         android:clipToOutline="false"
         android:outlineProvider="none"
+        android:onClick="loadButtonClick"
         android:theme="@android:style/Theme.DeviceDefault"/>
     <TextView
         android:id="@+id/btnResumeGame"
