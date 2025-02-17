@@ -117,11 +117,11 @@ public class GameView extends View {
     float scaleBall=0.05f;
     float scaleBrick=0.5f;
 
-    int brickRows=10;//6*((int) (1/scaleBrick));
+    int brickRows=6;//6*((int) (1/scaleBrick));
     int brickColumns=12;//8*((int) (1/scaleBrick));
     int brickWidth,brickHeight,brickRadius;
     int brickpadding;
-    int bricksTopMargin=600;
+    int bricksTopMargin=350;
     int colorBrick;
 
     private int numColors=colorsBrick.length;
@@ -276,7 +276,7 @@ public class GameView extends View {
         random = new Random();
         Matrix matrix = new Matrix();
         matrix.postScale(scaleBall, scaleBall);
-        ballBefore = BitmapFactory.decodeResource(getResources(), R.drawable.ball2);
+        ballBefore = BitmapFactory.decodeResource(getResources(), R.drawable.ball4);
         ball = Bitmap.createBitmap(ballBefore, 0, 0, ballBefore.getWidth(), ballBefore.getHeight(), matrix, true);
         iceBalls =new Bitmap[5];
         for (int i=0;i<5;i++){
@@ -316,47 +316,6 @@ public class GameView extends View {
         magnetEffects[4]=BitmapFactory.decodeResource(getResources(), R.drawable.ele5);
         magnetEffectWidth=magnetEffects[0].getWidth();
         magnetEffectHeight=magnetEffects[0].getHeight();
-
-        /*
-        restartIcon = BitmapFactory.decodeResource(getResources(), R.drawable.restart);
-        resumeIcon = BitmapFactory.decodeResource(getResources(), R.drawable.resume);
-        pauseIcon = BitmapFactory.decodeResource(getResources(), R.drawable.pause2);
-        quitIcon = BitmapFactory.decodeResource(getResources(), R.drawable.exit);
-        menuIcon = BitmapFactory.decodeResource(getResources(), R.drawable.menu);
-        restartIcon = Bitmap.createScaledBitmap(
-                restartIcon,
-                restartIcon.getWidth() /2,
-                restartIcon.getHeight() /2,
-                false
-        );
-
-        resumeIcon = Bitmap.createScaledBitmap(
-                resumeIcon,
-                resumeIcon.getWidth()/2,
-                resumeIcon.getHeight()/2,
-                false
-        );
-
-        pauseIcon = Bitmap.createScaledBitmap(
-                pauseIcon,
-                pauseIcon.getWidth()/2,
-                pauseIcon.getHeight() /2,
-                false
-        );
-
-        quitIcon = Bitmap.createScaledBitmap(
-                quitIcon,
-                quitIcon.getWidth() /2,
-                quitIcon.getHeight() /2,
-                false
-        );
-
-        menuIcon = Bitmap.createScaledBitmap(
-                menuIcon,
-                menuIcon.getWidth()/2,
-                menuIcon.getHeight()/2,
-                false
-        );*/
 
         // bg
         bgNum=random.nextInt(16)+1;
@@ -579,7 +538,7 @@ public class GameView extends View {
                         && ballLeft<paddleX+paddle.getWidth())
                 )
                 && (ballBottom>=paddleY)
-                && (ballBottom-velocity.getY()<paddleY)
+                && (ballCenterY>=paddleY)
                 ))
                 && initVelocity && velocity.getY() >0) {
 
@@ -822,8 +781,8 @@ public class GameView extends View {
                             mpHeal.start();
                         }
                         life+=2;
-                        if (life>5){
-                            life=5;
+                        if (life>maxLife){
+                            life=maxLife;
                         }
                     }
                 }
@@ -1094,17 +1053,6 @@ public class GameView extends View {
     }
 
 
-
-    public void quitGame() {
-        ((Activity) getContext()).finish();
-    }
-
-    public void openMenu() {
-        // Intent intent = new Intent(getContext(), MainActivity.class);
-        // getContext().startActivity(intent);
-        // since the main activity was not terminated maybe it is better to do it like this
-        ((Activity) getContext()).setContentView(R.layout.activity_main);
-    }
 
     public void restartGame() {
         initializeGame();

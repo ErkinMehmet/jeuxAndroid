@@ -71,7 +71,7 @@
         android:id="@+id/btnRecords"
         android:layout_width="320dp"
         android:layout_height="wrap_content"
-        android:text="            Records"
+        android:text="            Shop"
         android:textColor="#FFFFFF"
         android:background="@drawable/arrow_button_records"
         android:padding="0dp"

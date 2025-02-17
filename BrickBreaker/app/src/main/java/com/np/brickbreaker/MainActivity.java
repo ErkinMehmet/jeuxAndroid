@@ -1,11 +1,14 @@
 package com.np.brickbreaker;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -23,9 +26,20 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.gson.Gson;
 import com.np.brickbreaker.models.GameState;
+import com.np.brickbreaker.utils.StoreUtils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class MainActivity extends AppCompatActivity {
-
+    private static final int STORE_REQUEST_CODE = 1;
     private boolean isGameRunning=false;
     private static GameView gameView;
     private FrameLayout gameContainer;
@@ -79,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startGame(View view) {
+        initBgs();
         initiateGame(1);
     }
 
@@ -92,16 +107,13 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Starting a New Game!", Toast.LENGTH_SHORT).show();
                 gameView = new GameView(this,this); // create a game view if it does not exist yet
             }
-        } else if (option==2){
-            // resume (gameView exists)
-
-        } else {
+        } else if (option==3){
             // loads a game
             if (gameView == null) {
                 gameView = new GameView(this,this); // create a game view if it does not exist yet
             }
             Toast.makeText(this, "Loading a Game!", Toast.LENGTH_SHORT).show();
-        }
+        } // 2 - gameView not null and returnToGame ou
 
         // goes back to the same game from game over
         if (gameView.getParent() != null) {
@@ -181,8 +193,8 @@ public class MainActivity extends AppCompatActivity {
         restartButton.setOnClickListener(v -> gameView.restartGame());
         resumeButton.setOnClickListener(v ->toggleGamePause());
         pauseButton.setOnClickListener(v -> toggleGamePause());
-        quitButton.setOnClickListener(v -> gameView.quitGame());
-        menuButton.setOnClickListener(v -> gameView.openMenu());
+        quitButton.setOnClickListener(v -> quitGame(null));
+        menuButton.setOnClickListener(v -> openMenu());
         saveButton.setOnClickListener(v -> saveGame());
         loadButton.setOnClickListener(v -> loadGame(null,2));
 
@@ -194,10 +206,17 @@ public class MainActivity extends AppCompatActivity {
         buttonContainer.addView(saveButton);
         buttonContainer.addView(loadButton);
 
+        resumeButton.setVisibility(View.GONE);
+
         gameContainer.addView(buttonContainer);
 
 
     }
+    public void openMenu() {
+        setContentView(R.layout.activity_main);
+    }
+
+
     public void saveGame() {
         View choiceDialogView = getLayoutInflater().inflate(R.layout.choice_dialogue_customed, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(this)
@@ -248,7 +267,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean isSlotAlreadySaved(int slotIndex) {
-        //gameDataSharedPreferences = getSharedPreferences("GameData", MODE_PRIVATE);
         return gameDataSharedPreferences.contains("game_state_slot_" + (slotIndex + 1));
     }
 
@@ -311,8 +329,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void saveGameDataToSlot(int slotIndex) {
-        //gameDataSharedPreferences = getSharedPreferences("GameData", MODE_PRIVATE);
-
         // Example game state data (replace with actual values)
         GameState gameState=gameView.getGameState();
         Gson gson = new Gson();
@@ -338,6 +354,8 @@ public class MainActivity extends AppCompatActivity {
         }
         gameDataeditor.apply();
         Toast.makeText(this, "Game saved to Slot " + (slotIndex + 1), Toast.LENGTH_SHORT).show();
+
+        saveBgs(slotIndex+1);
     }
 
     public void loadGame(View view,int askLosingProgress) {
@@ -390,11 +408,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void toggleGamePause() {
+        if (!gameView.gamePaused) {
+            pauseButton.setVisibility(View.GONE);
+            resumeButton.setVisibility(View.VISIBLE);
+        } else {
+            pauseButton.setVisibility(View.VISIBLE);
+            resumeButton.setVisibility(View.GONE);
+        }
         gameView.gamePaused=!gameView.gamePaused;
         gameView.invalidate();
     }
 
     private void showLosingProgressialog(int slotIndex,int askLosingProgress) {
+        loadBgs(slotIndex+1);
+
         View dialogView = getLayoutInflater().inflate(R.layout.dialogue_customed, null);
         String gameStateJson = null;
         switch (slotIndex) {
@@ -419,22 +446,11 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "No saved game data in this slot!", Toast.LENGTH_SHORT).show();
         } else {
             final String gameStateJson2=gameStateJson;
+
             if (askLosingProgress==2){
                 AlertDialog.Builder builder = new AlertDialog.Builder(this)
                         .setView(dialogView)
                         .setCancelable(true);;
-                        /*.setTitle("Unsaved Progress Might Be Lost")
-                        .setMessage("Unsaved progress might be lost. Sure to proceed?")
-                        .setPositiveButton("Yes", (dialog, which) -> {
-                            gameDataeditor.putString("loaded_game_state", gameStateJson2);  // Set the "is_game_loaded" flag to true
-                            gameDataeditor.apply();
-                            gameView.initializeGame();
-                            Toast.makeText(this, "Game loaded from Slot " + (slotIndex + 1), Toast.LENGTH_SHORT).show();
-                        })
-                        .setNegativeButton("No", (dialog, which) -> {
-                        })
-                        .setCancelable(true)
-                        .show();*/
                 AlertDialog alertDialog = builder.create();
                 Button btnYes = dialogView.findViewById(R.id.btnYes);
                 btnYes.setOnClickListener(v -> {
@@ -464,15 +480,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void returnToGame(View view) {
-        /*if (gameView != null) {
-            Toast.makeText(this, "Resuming the Game!", Toast.LENGTH_SHORT).show();
-            if (gameView.getParent() != null) {
-                ((ViewGroup) gameView.getParent()).removeView(gameView);
+        if (gameView!=null) {
+            //gameView.points = gameDataSharedPreferences.getInt("points", gameView.points);;
+            loadBgs(0);
+            initiateGame(2);
+
+        } else {
+            // if game not started yet load data from last time
+            // load data from last time
+            String gameTempData;
+            if (gameDataSharedPreferences.contains("game_state_slot_default")) {
+                gameTempData=gameDataSharedPreferences.getString("game_state_slot_default", null);
+                gameDataeditor.putString("loaded_game_state", gameTempData);  // Set the "is_game_loaded" flag to true
+                gameDataeditor.apply();
+                initiateGame(3);
+            } else {
+                // no previous history
+                initiateGame(1);
             }
-            setContentView(gameView); // Restore the GameView
-            isGameRunning = true; // Mark that the game is running
-        }*/
-       initiateGame(2);
+        }
+
     }
 
     public void viewRecords(View view) {
@@ -481,7 +508,7 @@ public class MainActivity extends AppCompatActivity {
             points=gameView.points;
             Intent intent = new Intent(this, StoreActivity.class);
             intent.putExtra("points", points);
-            startActivity(intent);
+            startActivityForResult(intent, STORE_REQUEST_CODE);
             Toast.makeText(this, "Viewing Records!", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "You must start or load a game before going to the store", Toast.LENGTH_LONG).show();
@@ -489,9 +516,112 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void quitGame(View view) {
-        Toast.makeText(this, "Quitting the Game. Goodbye!", Toast.LENGTH_SHORT).show();
-        finishAffinity(); // Closes all activities in the task
-        System.exit(0);   // Terminates the app process
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == STORE_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
+            gameView.points = data.getIntExtra("points", 0);
+            Toast.makeText(this, "Points returned: " + gameView.points, Toast.LENGTH_SHORT).show();
+        }
     }
+
+    public void quitGame(View view) {
+        // save data
+        if (gameView!=null) {
+            GameState gameState=gameView.getGameState();
+            Gson gson = new Gson();
+            String gameStateJson = gson.toJson(gameState);//
+            gameDataeditor.putString("game_state_slot_default", gameStateJson);
+            gameDataeditor.apply();
+            //Toast.makeText(this, "infoffffff"+gameStateJson, Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "Quitting the Game. Goodbye!", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, gameDataSharedPreferences.getString("game_state_slot_default", "nothingggg"), Toast.LENGTH_SHORT).show();
+            saveBgs(0);
+        }
+        finishAffinity(); // Closes all activities in the task
+        new Handler(Looper.getMainLooper()).postDelayed(() -> System.exit(0), 200);
+    }
+
+    public void saveBgs(int slot){
+        try {
+            File file = new File(getFilesDir(), "shop/bgs2.json"); // internal storage
+            if (!file.exists()) {
+                try {
+                    InputStream is = getAssets().open("shop/bgs_init.json"); // assets
+                    StoreUtils.copyOrReplaceBgStorage(file, is);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            FileInputStream fis = new FileInputStream(file);
+            byte[] buffer = new byte[(int) file.length()];
+            fis.read(buffer);
+            fis.close();
+            String json = new String(buffer, "UTF-8");
+            JSONObject jsonObject = new JSONObject(json);
+            JSONArray backgrounds = jsonObject.getJSONArray("backgrounds");
+            for (int i = 0; i < backgrounds.length(); i++) {
+                JSONObject item = backgrounds.getJSONObject(i);
+                String itemId = item.getString("id");
+                boolean isPurchased = item.getBoolean("purchased");
+                gameDataeditor.putBoolean("slot_"+String.valueOf(slot)+"_bg+"+itemId, isPurchased);
+            }
+            gameDataeditor.apply();
+            Toast.makeText(this, "Purchase statuses saved to SharedPreferences", Toast.LENGTH_SHORT).show();
+
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Error processing file", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void loadBgs(int slot){
+        try {
+            File file = new File(getFilesDir(), "shop/bgs2.json");
+            if (!file.exists()) {
+                try {
+                    InputStream is = getAssets().open("shop/bgs_init.json"); // assets
+                    StoreUtils.copyOrReplaceBgStorage(file, is);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            // Read the JSON file
+            FileInputStream fis = new FileInputStream(file);
+            byte[] buffer = new byte[(int) file.length()];
+            fis.read(buffer);
+            fis.close();
+            String json = new String(buffer, "UTF-8");
+
+            JSONObject jsonObject = new JSONObject(json);
+            JSONArray backgrounds = jsonObject.getJSONArray("backgrounds");
+            for (int i=0;i<9;i++) {
+                JSONObject item = backgrounds.getJSONObject(i);
+                String itemId = item.getString("id");
+                item.put("purchased", gameDataSharedPreferences.getBoolean("slot_"+slot+"_bg+"+i,false));
+            }
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(jsonObject.toString().getBytes());
+            fos.close();
+            Toast.makeText(this, "Purchase statuses loaded from SharedPreferences and updated in JSON", Toast.LENGTH_SHORT).show();
+
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Error processing file", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void initBgs(){
+        File file = new File(getFilesDir(), "shop/bgs2.json");
+        if (!file.exists()) {
+            try {
+                InputStream is = getAssets().open("shop/bgs_init.json"); // assets
+                StoreUtils.copyOrReplaceBgStorage(file, is);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 }

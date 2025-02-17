@@ -7,10 +7,14 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.json.JSONException;
+
+import java.io.IOException;
 import java.util.List;
 
 public class StoreAdapter extends RecyclerView.Adapter<StoreAdapter.StoreViewHolder> {
@@ -19,7 +23,7 @@ public class StoreAdapter extends RecyclerView.Adapter<StoreAdapter.StoreViewHol
     private final OnItemClickListener onItemClickListener;
 
     public interface OnItemClickListener {
-        void onItemClick(StoreItem item);
+        void onItemClick(StoreItem item) throws JSONException, IOException;
     }
 
     public StoreAdapter(List<StoreItem> items, OnItemClickListener onItemClickListener) {
@@ -80,7 +84,36 @@ public class StoreAdapter extends RecyclerView.Adapter<StoreAdapter.StoreViewHol
             itemDescription.setText(item.getDescription());
             itemCost.setText("Cost: " + item.getCost() + " points");
 
-            buyButton.setOnClickListener(v -> onItemClickListener.onItemClick(item));
+            if (item.purchased) {
+                buyButton.setEnabled(false);
+                buyButton.setText("Purchased");
+                buyButton.setBackgroundColor(context.getResources().getColor(android.R.color.darker_gray));
+                buyButton.setOnClickListener(v -> {
+                    // Show a toast for already purchased items
+                    Toast.makeText(context, "This item has already been purchased!", Toast.LENGTH_SHORT).show();
+                });
+            } else {
+                buyButton.setEnabled(true);
+                buyButton.setText("Buy");
+                buyButton.setBackgroundColor(context.getResources().getColor(android.R.color.holo_blue_light));
+                buyButton.setOnClickListener(v -> {
+                    try {
+                        onItemClickListener.onItemClick(item);
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+            }buyButton.setOnClickListener(v -> {
+                try {
+                    onItemClickListener.onItemClick(item);
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
         }
     }
 }
